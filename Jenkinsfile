@@ -17,6 +17,7 @@ pipeline {
                 command:
                 - cat
                 tty: true
+           '''
         }
    }
    stages {
