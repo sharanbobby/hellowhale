@@ -6,18 +6,18 @@ pipeline {
     }
     agent {
         kubernetes {
-           defaultContainer 'jenkins-slave'
-           inheritFrom 'kube'
-           label 'kube-jenkins'
-           yaml '''
-           spec:
-             containers:
-             - name: jenkins-slave
-               image: jenkinsci/jnlp-slave
-               command:
-               - cat
-               tty: true
-           }
+            defaultContainer 'jenkins-slave'
+            inheritFrom 'kube'
+            label 'kube-jenkins'
+            yaml '''
+            spec:
+              containers:
+              - name: jenkins-slave
+                image: jenkinsci/jnlp-slave
+                command:
+                - cat
+                tty: true
+        }
    }
    stages {
         stage('Checkout') {
@@ -42,7 +42,6 @@ pipeline {
                 }
             }
         }
-
         stage('Deploy') {
             steps {
                 script {
