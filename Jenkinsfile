@@ -4,7 +4,20 @@ pipeline {
         registryCredentials = 'b4f2e812-96a2-4285-b0b3-3e904d588e1f'
         dockerImage = ''
     }
-   agent any
+    agent {
+        kubernetes {
+           inheritFrom 'kube'
+           label 'kube-jenkins'
+           yaml '''
+           spec:
+             containers:
+             - name: jenkins-slave
+               image: jenkinsci/jnlp-slave
+               command:
+               - cat
+               tty: true
+           }
+   }
    stages {
         stage('Checkout') {
             steps {
