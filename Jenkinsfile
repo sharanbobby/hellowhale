@@ -13,14 +13,14 @@ pipeline {
         }
         stage('Build') {
             steps {
-                scripts {
+                script {
                     dockerImage = docker.build registry + ":$Build_Number"
                 }
             }
         }
         stage('Push image to docker') {
             steps {
-                scripts {
+                script {
                     docker.withRegistry( '', registryCredentials ) {
                         dockerImage.push("latest")
                         
@@ -31,8 +31,8 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                scripts {
-                    kubernetesDeploy(configs: "hellowhale.yml", kubeconfigID: "dockerkubeconfig")
+                script {
+                    kubernetesDeploy(configs: "hellowhale.yml", kubeconfigId: "dockerkubeconfig")
                 }
             }
         }
