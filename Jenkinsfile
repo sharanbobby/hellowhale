@@ -7,8 +7,7 @@ pipeline {
     agent {
         kubernetes {
             defaultContainer 'jenkins-slave'
-            inheritFrom 'kube'
-            label 'kube-jenkins'
+            inheritFrom 'kube-jenkins-slave'
             yaml '''
             spec:
               containers:
