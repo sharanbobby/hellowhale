@@ -4,29 +4,72 @@ pipeline {
         registryCredentials = 'b4f2e812-96a2-4285-b0b3-3e904d588e1f'
         dockerImage = ''
     }
-    agent any
-    stages {
+    agent {
+        kubernetes {
+            defaultContainer 'jenkins-slave'
+            inheritFrom 'kube'
+            yaml '''
+            spec:
+              containers:
+              - name: git
+                image: bitnami/git:latest
+                command:
+                - cat
+                tty: true
+              - name: kubectl
+                image: bitnami/kubectl:latest
+                command:
+                - cat
+                tty: true
+              - name: docker
+                image: docker:latest
+                command:
+                - cat
+                tty: true 
+           '''
+        }
+   }
+   stages {
+        stage('Checkout') {
+            container('git') {
+                steps {
+                    dir('/home/jenkins/agent/workspace') {
+                        git url:'https://github.com/sharanbobby/hellowhale', branch:'master'
+                    }    
+                }                      
+            }
+        }
+
         stage('Build') {
             steps {
-                script {
-                    dockerImage = docker.build registry + ":$Build_Number"
-                }
+                container('docker') {
+                    script {
+                        dir('/home/jenkins/agent/workspace') {
+                            dockerImage = docker.build registry + ":$Build_Number"
+                        }  
+                    }   
+                }  
             }
         }
         stage('Push image to docker') {
             steps {
-                script {
-                    docker.withRegistry( '', registryCredentials ) {
-                        dockerImage.push("latest")
-                        
+                container('docker') {
+                    script {
+                        docker.withRegistry( '', registryCredentials ) {
+                            dockerImage.push("latest")
+
+                        }
                     }
                 }
             }
         }
         stage('Deploy') {
             steps {
-                script {
-                    kubernetesDeploy(configs: "hellowhale.yml", kubeconfigId: "dockerkubeconfig")
+                container('kubectl') {
+                    script {
+                        kubernetesDeploy(configs: "hellowhale.yml", kubeconfigId: "dockerkubeconfig")
+                   }
+
                 }
             }
         }
