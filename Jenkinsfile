@@ -9,11 +9,6 @@ pipeline {
             yaml '''
             spec:
               containers:
-              - name: git
-                image: bitnami/git:latest
-                command:
-                - cat
-                tty: true
               - name: kubectl
                 image: bitnami/kubectl:latest
                 command:
@@ -30,43 +25,11 @@ pipeline {
    stages {
         stage('Checkout') {
             steps {
-                container('git') {
+                container('kubectl') {
                         git url:'https://github.com/sharanbobby/hellowhale', branch:'master'
                        
                 }                      
             }
         }
-
-        stage('Build') {
-            steps {
-                container('docker') {
-                    script {
-                            dockerImage = docker.build registry + ":$Build_Number" 
-                    }   
-                }  
-            }
-        }
-        stage('Push image to docker') {
-            steps {
-                container('docker') {
-                    script {
-                        docker.withRegistry( '', registryCredentials ) {
-                            dockerImage.push("latest")
-
-                        }
-                    }
-                }
-            }
-        }
-        stage('Deploy') {
-            steps {
-                container('kubectl') {
-                    script {
-                        kubernetesDeploy(configs: "hellowhale.yml", kubeconfigId: "dockerkubeconfig")
-                   }
-
-                }
-            }
-        }
-    }
- }
+   }
+}
