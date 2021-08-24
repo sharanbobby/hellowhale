@@ -1,35 +1,51 @@
 pipeline {
     environment {
         registry = "sharanbobby/hellowhale"
-        registryCredentials = 'b4f2e812-96a2-4285-b0b3-3e904d588e1f'
+        registryCredentials = 'b8e75826-b643-4980-8fa7-0283b1072574'
         dockerImage = ''
     }
-    agent {
-        kubernetes {
-            yaml '''
-            spec:
-              containers:
-              - name: kubectl
-                image: bitnami/kubectl:latest
-                command:
-                - cat
-                tty: true
-              - name: docker
-                image: docker:latest
-                command:
-                - cat
-                tty: true 
-           '''
-        }
-   }
+    agent any
+
    stages {
         stage('Checkout') {
             steps {
-                container('kubectl') {
-                        git url:'https://github.com/sharanbobby/hellowhale', branch:'master'
-                       
-                }                      
+
+               git url:'https://github.com/sharanbobby/hellowhale', branch:'master'
+                      
             }
         }
    }
 }
+        stage('Build') {
+            steps {
+
+                    script {
+                            dockerImage = docker.build registry + ":$Build_Number" 
+                    }   
+                 
+            }
+        }
+        stage('Push image to docker') {
+            steps {
+
+                    script {
+                        docker.withRegistry( '', registryCredentials ) {
+                            dockerImage.push("latest")
+
+                        }
+                    }
+                
+            }
+        }
+        stage('Deploy') {
+            steps {
+
+                    script {
+                        kubernetesDeploy(configs: "hellowhale.yml", kubeconfigId: "dockerkubeconfig")
+                   }
+
+                
+            }
+        }
+    }
+ }
