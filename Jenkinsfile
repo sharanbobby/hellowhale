@@ -5,13 +5,6 @@ pipeline {
         dockerImage = ''
     }
     agent any
-
-   stages {
-        stage('Checkout') {
-            steps {
-                git url:'https://github.com/sharanbobby/hellowhale', branch:'master'
-            }
-        }
         stage('Build') {
             steps {
                 script {
