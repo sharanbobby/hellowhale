@@ -31,8 +31,8 @@ pipeline {
    }
    stages {
         stage('Checkout') {
-            container('git') {
-                steps {
+            steps {
+                container('git') {
                     dir('/home/jenkins/agent/workspace') {
                         git url:'https://github.com/sharanbobby/hellowhale', branch:'master'
                     }    
