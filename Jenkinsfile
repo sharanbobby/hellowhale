@@ -33,9 +33,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 container('git') {
-                    dir('/home/jenkins/agent/workspace') {
                         git url:'https://github.com/sharanbobby/hellowhale', branch:'master'
-                    }    
+                       
                 }                      
             }
         }
@@ -44,9 +43,7 @@ pipeline {
             steps {
                 container('docker') {
                     script {
-                        dir('/home/jenkins/agent/workspace') {
-                            dockerImage = docker.build registry + ":$Build_Number"
-                        }  
+                            dockerImage = docker.build registry + ":$Build_Number" 
                     }   
                 }  
             }
