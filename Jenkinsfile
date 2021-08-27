@@ -1,12 +1,35 @@
 pipeline {
     environment {
         registry = "sharanbobby/hellowhale"
-        registryCredentials = '3c5d7f13-f263-4109-9d40-ab64bff290b1'
+        registryCredentials = 'b4f2e812-96a2-4285-b0b3-3e904d588e1f'
         dockerImage = ''
     }
-    agent any
-
+    agent {
+        kubernetes {
+            defaultContainer 'jenkins-agent'
+            inheritFrom 'kube'
+            yaml '''
+            spec:
+              containers:
+              - name: jenkins-agent
+                image: sharanbobby/jenkinsbuild:1.3
+                command:
+                - cat
+                tty: true
+            '''
+        
+       }
+    }
+    
+    
    stages {
+       stage('Checkout') {
+            steps {
+                container('kubectl') {
+                        git url:'https://github.com/sharanbobby/hellowhale', branch:'master'   
+                }                      
+            }
+        }
         
         stage('Build') {
             steps {
